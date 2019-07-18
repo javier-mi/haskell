@@ -30,8 +30,8 @@ instance Show a => Show (Mundo a) where
 instance Functor Mundo where
   fmap f (Mundo r shp cells) = Mundo r shp (fmap f cells)
 
-world :: Rect -> Forma -> (Loc -> a) -> Mundo a
-world limites forma f = Mundo limites forma celdas
+mundo :: Rect -> Forma -> (Loc -> a) -> Mundo a
+mundo limites forma f = Mundo limites forma celdas
   where locs = locationsIn limites
         states = map f locs
         celdas = array limites (zip locs states)
@@ -47,31 +47,28 @@ cells w = map ((celdasMundo w)!) (locationsIn (limitesMundo w))
 cellAt :: Mundo a -> Loc -> a
 cellAt (Mundo _ _ cels) x = cels ! x
 
-inside :: Mundo a -> Loc -> Bool
-inside w = inRange (limitesMundo w)
+dentro :: Mundo a -> Loc -> Bool
+dentro w = inRange (limitesMundo w)
 
 locationsIn :: Rect -> [Loc]
 locationsIn ((x1,y1),(x2,y2)) = [(x,y) | y <- [y1..y2], x <- [x1..x2]]
 
-wrap :: Mundo a -> Loc -> Loc
-wrap world (x,y) = 
-  case formaMundo world of
+envolver :: Mundo a -> Loc -> Loc
+envolver mundo (x,y) = 
+  case formaMundo mundo of
     Plana -> (x,y)
     Toroidal -> 
       let 
-        ((x1,y1),(x2,y2)) = limitesMundo world
+        ((x1,y1),(x2,y2)) = limitesMundo mundo
         w = x2 - x1
         h = y2 - y1
       in
         ((x `mod` w) + x1,(y `mod` h) + y1)
 
 vecinos :: [Offset] -> Mundo a -> Loc -> [Loc]
-vecinos ds w (x,y) = filter (inside w) neighborLocs
-  where neighborLocs = map (\(dx,dy) -> wrap' (x+dx,y+dy)) ds
-        wrap' = wrap w
-
-cardinalNeighbors :: [Offset]
-cardinalNeighbors = [(0,-1),(-1, 0),(1, 0),(0, 1)]
+vecinos ds w (x,y) = filter (dentro w) posicionVecinos
+  where posicionVecinos = map (\(dx,dy) -> envolver' (x+dx,y+dy)) ds
+        envolver' = envolver w
 
 mooreNeighbors :: [Offset]
 mooreNeighbors = [(-1,-1),(0,-1),(1,-1),

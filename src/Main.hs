@@ -11,8 +11,7 @@ colorCell Conway.Muerta  = black
 main :: IO ()
 main = do
 	putStrLn "Comenzando simulación"
-	mundo <- Conway.randomMundo 200 200
-	doGraphics colorCell (evolve Conway.evolveCell) mundo
+	mundo <- Conway.randomMundo 300 300
+	doGraphics colorCell (evolve Conway.evolucionarCelda) mundo
 	putStrLn "Simulación Finalizada"
 	return ()
-
